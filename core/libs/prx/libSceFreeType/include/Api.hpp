@@ -6,6 +6,13 @@
 
 extern "C" {
 
+int APS5_VABI FT_OpenType_Validate_nid_postfix(FreeType::GuestFaceRec* face, std::uint32_t flags, const unsigned char** base, const unsigned char** gdef, const unsigned char** gpos, const unsigned char** gsub, const unsigned char** jstf);
+void APS5_VABI FT_OpenType_Free_nid_postfix(FreeType::GuestFaceRec* face, const unsigned char* table);
+int APS5_VABI FT_TrueTypeGX_Validate_nid_postfix(FreeType::GuestFaceRec* face, std::uint32_t flags, const unsigned char** tables, std::uint32_t tableCount);
+void APS5_VABI FT_TrueTypeGX_Free_nid_postfix(FreeType::GuestFaceRec* face, const unsigned char* table);
+int APS5_VABI FT_ClassicKern_Validate_nid_postfix(FreeType::GuestFaceRec* face, std::uint32_t flags, const unsigned char** table);
+void APS5_VABI FT_ClassicKern_Free_nid_postfix(FreeType::GuestFaceRec* face, const unsigned char* table);
+
 int APS5_VABI FT_Init_FreeType_nid_postfix(FreeType::GuestLibrary** alibrary);
 int APS5_VABI FT_Done_FreeType_nid_postfix(FreeType::GuestLibrary* library);
 int APS5_VABI FT_New_Face_nid_postfix(FreeType::GuestLibrary* library, const char* filepathname, std::int64_t faceIndex, FreeType::GuestFaceRec** aface);
