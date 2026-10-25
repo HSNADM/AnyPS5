@@ -51,7 +51,6 @@ struct RsaKey {
     RsaNumber* inverseQ;
     struct ExtraData {
         void* stack;
-        std::int32_t dummy;
     } extraData;
     std::int32_t references;
     std::int32_t flags;
@@ -64,8 +63,8 @@ struct RsaKey {
 
 static_assert(sizeof(RsaNumber) == 24 && offsetof(RsaNumber, flags) == 20);
 static_assert(sizeof(RsaMethod) == 112 && offsetof(RsaMethod, flags) == 72);
-static_assert(sizeof(RsaKey) == 160 && offsetof(RsaKey, n) == 32);
-static_assert(offsetof(RsaKey, references) == 112 && offsetof(RsaKey, flags) == 116);
+static_assert(sizeof(RsaKey) == 152 && offsetof(RsaKey, n) == 32);
+static_assert(offsetof(RsaKey, references) == 104 && offsetof(RsaKey, flags) == 108);
 
 }
 

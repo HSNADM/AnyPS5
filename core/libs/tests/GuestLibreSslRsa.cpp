@@ -76,6 +76,10 @@ struct Fixture {
 static void Raw() {
     auto* key = RSA_new_nid_postfix();
     Require(key);
+    int references = 0, flags = 0;
+    std::memcpy(&references, reinterpret_cast<const unsigned char*>(key) + 104, sizeof(references));
+    std::memcpy(&flags, reinterpret_cast<const unsigned char*>(key) + 108, sizeof(flags));
+    Require(references == 1 && flags == 6);
     const std::array<std::uint64_t, 8> values{3233, 17, 2753, 61, 53, 53, 49, 38};
     std::array<RsaNumber**, 8> targets{&key->n, &key->e, &key->d, &key->p, &key->q, &key->dp, &key->dq, &key->inverseQ};
     for (std::size_t index = 0; index < values.size(); ++index) {
@@ -97,6 +101,8 @@ static void Raw() {
     Require(plain == message);
     Require(RSA_check_key_nid_postfix(key) == 1);
     Require(RSA_up_ref_nid_postfix(key) == 1 && key->references == 2);
+    std::memcpy(&references, reinterpret_cast<const unsigned char*>(key) + 104, sizeof(references));
+    Require(references == 2);
     RSA_free_nid_postfix(key);
     Require(key->references == 1);
     RSA_free_nid_postfix(key);
