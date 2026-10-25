@@ -47,6 +47,7 @@ endfunction()
 
 configure_ssl_backend()
 set_target_properties(mbedtls mbedcrypto mbedx509 p256m PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_compile_definitions(mbedcrypto PUBLIC MBEDTLS_MPI_MAX_SIZE=2048)
 if(MINGW)
     target_compile_options(mbedtls PRIVATE -fno-asynchronous-unwind-tables)
     target_compile_options(mbedcrypto PRIVATE -fno-asynchronous-unwind-tables)

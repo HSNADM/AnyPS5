@@ -1,9 +1,23 @@
 add_library(libSceLibreSsl SHARED EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/Export.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/Digest.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/Runtime.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/Aes.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/Error.cpp)
 target_include_directories(libSceLibreSsl PRIVATE ${LIBS_INCLUDE_DIR})
 target_link_libraries(libSceLibreSsl PRIVATE mbedcrypto)
+target_sources(libSceLibreSsl PRIVATE src/Rsa.cpp)
 configure_windows_unwind(libSceLibreSsl)
 
 if(BUILD_TESTING)
+    add_test_executable(guest_libressl_rsa_tests ${LIBS_INCLUDE_DIR}/tests/GuestLibreSslRsa.cpp)
+    target_include_directories(guest_libressl_rsa_tests PRIVATE ${LIBS_INCLUDE_DIR})
+    target_link_libraries(guest_libressl_rsa_tests PRIVATE libSceLibreSsl libSceLibreSsl3 mbedcrypto libc)
+    configure_windows_unwind(guest_libressl_rsa_tests)
+    foreach(rsaCase IN ITEMS raw padding ownership invalid)
+        add_test(NAME guest_libressl_rsa_${rsaCase} COMMAND guest_libressl_rsa_tests ${rsaCase})
+        set_tests_properties(guest_libressl_rsa_${rsaCase} PROPERTIES TIMEOUT 20)
+        if(WIN32)
+            set_tests_properties(guest_libressl_rsa_${rsaCase} PROPERTIES ENVIRONMENT_MODIFICATION
+                "PATH=path_list_prepend:$<TARGET_FILE_DIR:libSceLibreSsl>")
+        endif()
+    endforeach()
+
     add_test_executable(guest_libressl_x509_errors_tests ${LIBS_INCLUDE_DIR}/tests/GuestLibreSslX509Errors.cpp)
     target_include_directories(guest_libressl_x509_errors_tests PRIVATE ${LIBS_INCLUDE_DIR})
     target_link_libraries(guest_libressl_x509_errors_tests PRIVATE libSceLibreSsl libc)

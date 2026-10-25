@@ -1,5 +1,7 @@
 #pragma once
 
+#include "prx/libSceLibreSsl/include/Rsa.hpp"
+
 #include "SceTypes.hpp"
 
 inline constexpr int MaxRounds = 14;
@@ -234,14 +236,14 @@ int APS5_VABI PKCS12_PBE_add_nid_postfix(void);
 int APS5_VABI PKCS12_free_nid_postfix(void);
 int APS5_VABI PKCS12_parse_nid_postfix(void);
 int APS5_VABI RSA_flags_nid_postfix(void);
-int APS5_VABI RSA_free_nid_postfix(void);
+void APS5_VABI RSA_free_nid_postfix(LibreSsl::RsaKey* key);
 int APS5_VABI RSA_generate_key_ex_nid_postfix(void);
-int APS5_VABI RSA_new_nid_postfix(void);
+LibreSsl::RsaKey* APS5_VABI RSA_new_nid_postfix();
 int APS5_VABI RSA_padding_add_PKCS1_PSS_nid_postfix(void);
-int APS5_VABI RSA_private_decrypt_nid_postfix(void);
-int APS5_VABI RSA_private_encrypt_nid_postfix(void);
-int APS5_VABI RSA_public_decrypt_nid_postfix(void);
-int APS5_VABI RSA_public_encrypt_nid_postfix(void);
+int APS5_VABI RSA_private_decrypt_nid_postfix(int length, const unsigned char* input, unsigned char* output, LibreSsl::RsaKey* key, int padding);
+int APS5_VABI RSA_private_encrypt_nid_postfix(int length, const unsigned char* input, unsigned char* output, LibreSsl::RsaKey* key, int padding);
+int APS5_VABI RSA_public_decrypt_nid_postfix(int length, const unsigned char* input, unsigned char* output, LibreSsl::RsaKey* key, int padding);
+int APS5_VABI RSA_public_encrypt_nid_postfix(int length, const unsigned char* input, unsigned char* output, LibreSsl::RsaKey* key, int padding);
 int APS5_VABI RSA_sign_nid_postfix(void);
 int APS5_VABI RSA_size_nid_postfix(void);
 int APS5_VABI RSA_verify_nid_postfix(void);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "prx/libSceLibreSsl/include/Rsa.hpp"
+
 #include "SceTypes.hpp"
 
 extern "C" {
@@ -54,10 +56,10 @@ int APS5_VABI OCSP_resp_find_status_nid_postfix(void);
 int APS5_VABI OpenSSL_version_nid_postfix(void);
 int APS5_VABI PKCS7_free_nid_postfix(void);
 int APS5_VABI PKCS8_PRIV_KEY_INFO_free_nid_postfix(void);
-int APS5_VABI RSA_check_key_nid_postfix(void);
+int APS5_VABI RSA_check_key_nid_postfix(const LibreSsl::RsaKey* key);
 int APS5_VABI RSA_get0_key_nid_postfix(void);
 int APS5_VABI RSA_padding_add_PKCS1_PSS_mgf1_nid_postfix(void);
-int APS5_VABI RSA_up_ref_nid_postfix(void);
+int APS5_VABI RSA_up_ref_nid_postfix(LibreSsl::RsaKey* key);
 int APS5_VABI SSL_CTX_add0_chain_cert_nid_postfix(void);
 int APS5_VABI SSL_CTX_clear_chain_certs_nid_postfix(void);
 int APS5_VABI SSL_CTX_set_max_proto_version_nid_postfix(void);
