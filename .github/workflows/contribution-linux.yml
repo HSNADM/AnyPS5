@@ -1,0 +1,55 @@
+name: Linux contribution validation
+on:
+  push:
+    branches: [ci/contribution-linux]
+permissions:
+  contents: read
+jobs:
+  focused:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: freetype
+            source: f8a3347ae8c321ff72b8976ec18ffe8c265a98be
+            target: guest_freetype_validation_tests
+            pattern: '^guest_freetype_validation$'
+          - name: rsa
+            source: c4d5fe71c23ddfcf8b5a6b1352b8eada23081183
+            target: guest_libressl_rsa_tests
+            pattern: '^guest_libressl_rsa_'
+    name: Linux ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.source }}
+          submodules: recursive
+          persist-credentials: false
+      - name: Install build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-14 g++-14 ninja-build libvulkan1 mesa-vulkan-drivers libpipewire-0.3-dev libpulse-dev libasound2-dev libx11-dev libxext-dev libxrandr-dev libwayland-dev libxkbcommon-dev libegl-dev libdecor-0-dev
+      - name: Record source and toolchain
+        run: |
+          git rev-parse HEAD | tee source.log
+          g++-14 --version | tee toolchain.log
+          cmake --version | tee -a toolchain.log
+      - name: Configure full project
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 2>&1 | tee configure.log
+      - name: Build focused runtime test
+        run: cmake --build build --target '${{ matrix.target }}' --parallel 2 2>&1 | tee build.log
+      - name: Run focused runtime tests
+        run: ctest --test-dir build -R '${{ matrix.pattern }}' --output-on-failure --no-tests=error --output-junit focused.xml 2>&1 | tee ctest.log
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: linux-${{ matrix.name }}-evidence
+          path: |
+            source.log
+            toolchain.log
+            configure.log
+            build.log
+            ctest.log
+            build/focused.xml
