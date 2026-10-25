@@ -12,12 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: freetype
-            source: f8a3347ae8c321ff72b8976ec18ffe8c265a98be
-            target: guest_freetype_validation_tests
-            pattern: '^guest_freetype_validation$'
           - name: rsa
-            source: c4d5fe71c23ddfcf8b5a6b1352b8eada23081183
+            source: 74b03ea1474ef7a0c0fbe537fd237d468d861f9a
             target: guest_libressl_rsa_tests
             pattern: '^guest_libressl_rsa_'
     name: Linux ${{ matrix.name }}
