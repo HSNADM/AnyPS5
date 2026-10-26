@@ -12,10 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: rsa
-            source: 74b03ea1474ef7a0c0fbe537fd237d468d861f9a
-            target: guest_libressl_rsa_tests
-            pattern: '^guest_libressl_rsa_'
+          - name: freetype
+            source: 689971fa6c0fd7277e81455e97c323c18c62d698
+            target: libs guest_freetype_validation_tests
+            pattern: '^guest_freetype_validation$'
     name: Linux ${{ matrix.name }}
     steps:
       - uses: actions/checkout@v7
@@ -35,7 +35,7 @@ jobs:
       - name: Configure full project
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 2>&1 | tee configure.log
       - name: Build focused runtime test
-        run: cmake --build build --target '${{ matrix.target }}' --parallel 2 2>&1 | tee build.log
+        run: cmake --build build --target ${{ matrix.target }} --parallel 2 2>&1 | tee build.log
       - name: Run focused runtime tests
         run: ctest --test-dir build -R '${{ matrix.pattern }}' --output-on-failure --no-tests=error --output-junit focused.xml 2>&1 | tee ctest.log
       - uses: actions/upload-artifact@v7
