@@ -13,8 +13,8 @@ jobs:
       matrix:
         include:
           - name: system-integration
-            source: 85db2b9e27b832e5b648ede7e38ce3c86d13c1a8
-            target: guest_libressl3_key_unwrap_tests guest_libressl3_bio_tests guest_libressl3_asn1_values_tests guest_libressl3_pkey_getters_tests guest_crypto_memcmp_tests guest_libressl3_digest_tests guest_libressl3_digest_context_tests guest_libressl3_asn1_tests guest_libressl3_x509_verify_param_tests guest_libressl3_stack_tests guest_libressl3_cipher_tests guest_libressl3_key_reference_tests
+            source: 8b7c1ec9f1d7e5bb659c490f9291dc3cbbeb757b
+            target: guest_libressl3_asn1_time_tests guest_libressl3_key_unwrap_tests guest_libressl3_bio_tests guest_libressl3_asn1_values_tests guest_libressl3_pkey_getters_tests guest_crypto_memcmp_tests guest_libressl3_digest_tests guest_libressl3_digest_context_tests guest_libressl3_asn1_tests guest_libressl3_x509_verify_param_tests guest_libressl3_stack_tests guest_libressl3_cipher_tests guest_libressl3_key_reference_tests
             pattern: '^(guest_libressl3|guest_crypto_memcmp)'
     name: Linux ${{ matrix.name }}
     steps:
