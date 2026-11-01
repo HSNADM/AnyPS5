@@ -24,9 +24,11 @@
 
 - [ASN1_STRING_set](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Values.cpp) - console ABI, allocation and error-queue interoperability remain unverified. Follows the same LibreSSL 4.0.0 `a_string.c`: length -1 uses `strlen`, with null input returning 0 before touching the destination; other invalid lengths clear the old value before returning 0. Owned old bytes are wiped and freed, while NDEF data is borrowed. The NDEF flag is cleared, other flags and type survive, and replacement data receives a zero terminator even for null input. Allocation failure leaves a cleared value and queues ASN.1 malloc failure through the existing parent error helper. Null destinations, negative owned lengths and detected overlap with released source bytes throw where the source faults or accesses freed storage. Closes when: measured on the console, including errors and caller-owned data.
 
+- [AES_unwrap_key](../../../core/libs/prx/libSceLibreSsl3/src/KeyUnwrap.cpp) - console signature, AES schedule layout and results are unverified. Uses the existing parent-library `AesKey` and AES decrypt primitive, retaining that adapter's layout limitations. The algorithm follows [RFC 3394](https://www.rfc-editor.org/rfc/rfc3394.html); return values, overlapping buffers and output clearing follow [LibreSSL 4.0.0 aes.c](https://github.com/libressl/openbsd/blob/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/aes/aes.c). Invalid lengths return -1 without writing; an integrity mismatch clears plaintext and returns 0. Null pointers reached on valid lengths and invalid key rounds throw where LibreSSL faults or reads invalid storage. Host timing behavior is not verified. Closes when: compared with the console, including native key-schedule interoperability.
+
 ### Additional callable export inventory
 
-- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 159 pending callable exports: 149 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
+- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 158 pending callable exports: 148 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
 
 | Name | NID |
 | --- | --- |
@@ -82,7 +84,6 @@
 | `DES_set_key_unchecked` | `J437jVn9pjI` |
 | `EVP_PKEY_CTX_new_id` | `J5ZLHxWkT6k` |
 | `RSAPublicKey_dup` | `JSqFTYGaWhU` |
-| `AES_unwrap_key` | `JvoQz7GYOMo` |
 | `SSL_CTX_add1_chain_cert` | `L897DuAuXKk` |
 | `X509_print` | `LA1MlgDx80o` |
 | `tls_config_free` | `LL8N+X6DA-4` |
