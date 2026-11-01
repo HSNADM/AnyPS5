@@ -18,9 +18,15 @@
 - [X509_VERIFY_PARAM_set_flags](../../../core/libs/prx/libSceLibreSsl3/src/X509VerifyParam.cpp) (libSceLibreSsl3) - nothing is checked on the console. It ORs the flags into `flags` and returns 1, as both [LibreSSL 2.5.4](https://github.com/libressl/openbsd/blob/2e2c612066aa993717528a0249c15c51128d61cb/src/lib/libcrypto/x509/x509_vpm.c) and [4.0.0](https://github.com/libressl/openbsd/blob/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/x509/x509_vpm.c) `x509_vpm.c` do. They differ when `EXPLICIT_POLICY`, `INHIBIT_ANY` or `INHIBIT_MAP` is set while `POLICY_CHECK` is neither set nor requested: 2.5.4 also adds `POLICY_CHECK` and 4.0.0 does not. The console's choice is unknown, so that case throws through `NotImplemented_nid_no_patch` and leaves the parameters unchanged. It writes libSceLibreSsl's 2.5.4 `LibreSslX509VerifyParam`, whose `flags` is at offset 24 as in 4.0.0. Null parameters throw. Closes when: the console's policy behaviour is measured.
 - [sk_new, sk_push and sk_free](../../../core/libs/prx/libSceLibreSsl3/src/Stack.cpp) (libSceLibreSsl3) - follow [LibreSSL 4.0.0](https://github.com/libressl/openbsd/blob/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/stack/stack.c) `stack.c` with libSceLibreSsl's 32-byte `_STACK` layout, which `stack_local.h` keeps there. Stacks and element arrays come from the guest heap, so the forwarded `sk_pop_free` can release them. Nothing is checked on the console. Where LibreSSL faults or overflows, they throw: `sk_push` on a null stack, on a negative element count, on a null element array it does not regrow, or when the element array cannot double without overflowing `int`
 
+- [ASN1_TIME_new](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Time.cpp) - console allocator and cross-module lifetime behavior remain unverified. Follows LibreSSL 4.0.0 `a_time.c`, `tasn_new.c` and `a_string.c`: allocates the existing 24-byte `Asn1String` on the guest heap, with type -1, flags 0x40, zero length and null data. Allocation failure queues two ASN.1 malloc-failure codes through the existing parent error helper. No forwarded destructor interoperability is established. Closes when: compared with console allocation, errors and destruction.
+
+- [ASN1_TIME_diff](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Time.cpp) - console parsing, clock and output-fault behavior remain unverified. Follows [LibreSSL 4.0.0 ASN.1 time sources](https://github.com/libressl/openbsd/tree/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/asn1): strict UTC/GeneralizedTime ending in Z, no fractions, offsets or leap seconds, Gregorian years 0000 through 9999. Ignores record type and flags; null times read the guest clock independently. Returns signed day/second remainders and writes seconds before days. Null outputs after valid parsing throw without writing, where LibreSSL dereferences them and may have written seconds first. Invalid input returns 0 without changing outputs. Closes when: compared with console parser, clock and fault ordering.
+
+- [X509_cmp_current_time](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Time.cpp) - console certificate-profile and clock behavior remain unverified. Follows [LibreSSL 4.0.0 x509_verify.c and x509_vfy.c](https://github.com/libressl/openbsd/tree/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/x509): requires UTC form before 2050 and GeneralizedTime thereafter; type 0 permits automatic detection, other types must match the encoding. Null or malformed input returns 0. Uses the guest clock and returns -1 for an earlier or equal time, 1 for a later time. Closes when: checked against console certificate times and its clock.
+
 ### Additional callable export inventory
 
-- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 176 callable exports: 50 named and 126 known only by NID. Every entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No functional implementation or title unblock is claimed.
+- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 173 pending callable exports: 163 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
 
 | Name | NID |
 | --- | --- |
@@ -63,7 +69,6 @@
 | `tls_config_set_key_mem` | `A65b+ZhOt9k` |
 | `BN_clear_free` | `ABcJv8S1KEM` |
 | `unknown` | `AiNud8LR8B4` |
-| `X509_cmp_current_time` | `Ax+Uu++rnrA` |
 | `SSL_CTX_set_timeout` | `BBOgwZLvXHA` |
 | `tls_config_new` | `BQNyLN2nA9w` |
 | `X509_get_ext_by_NID` | `BRjfzlGULmU` |
@@ -116,7 +121,6 @@
 | `BIO_get_data` | `U3AsZ-9e2MI` |
 | `SSL_CTX_set0_chain` | `UHkYqkyfwOs` |
 | `EVP_PKEY2PKCS8` | `UT6E1YgI8mw` |
-| `ASN1_TIME_new` | `UmAPG5bxYYk` |
 | `X509_STORE_load_locations` | `V3JtebYui1A` |
 | `ERR_func_error_string` | `VXuysR7ySzw` |
 | `EVP_get_digestbyname` | `Wm24hhTLqWM` |
@@ -191,7 +195,6 @@
 | `tls_config_insecure_noverifyname` | `wNQT6Zn4UG4` |
 | `X509_EXTENSION_free` | `wbJDMMsje6s` |
 | `ASN1_TYPE_free` | `whL1IRBxFZA` |
-| `ASN1_TIME_diff` | `xBkcXV1OqWQ` |
 | `ECDSA_SIG_set0` | `xVv3qlSRldc` |
 | `OBJ_obj2txt` | `xZ1BME5qDv0` |
 | `SSL_set_quic_transport_params` | `xf6anoZpWRM` |
