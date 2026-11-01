@@ -32,9 +32,11 @@
 
 - [X509_cmp_current_time](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Time.cpp) - console certificate-profile and clock behavior remain unverified. Follows [LibreSSL 4.0.0 x509_verify.c and x509_vfy.c](https://github.com/libressl/openbsd/tree/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/x509): requires UTC form before 2050 and GeneralizedTime thereafter; type 0 permits automatic detection, other types must match the encoding. Null or malformed input returns 0. Uses the guest clock and returns -1 for an earlier or equal time, 1 for a later time. Closes when: checked against console certificate times and its clock.
 
+- [ASN1_get_object](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Header.cpp) - console ABI, BER quirks and error-queue interoperability remain unverified. Follows [LibreSSL 4.0.0 asn1_old_lib.c and asn1_lib.c](https://github.com/libressl/openbsd/tree/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/asn1) with 64-bit guest `long` and `size_t`. Malformed headers leave the cursor unchanged and zero outputs with error 123; parsed oversized lengths still return decoded fields and advance past the header with error 155. Negative available lengths convert to unsigned as upstream; oversized unsigned decoded lengths wrap in the signed output. Required null arguments throw before mutation; null bytes reached while parsing throw after outputs are reset, where LibreSSL faults. Closes when: compared with console parsing, widths, faults and errors.
+
 ### Additional callable export inventory
 
-- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 155 pending callable exports: 145 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
+- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 154 pending callable exports: 144 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
 
 | Name | NID |
 | --- | --- |
@@ -154,7 +156,6 @@
 | `SSL_set_alpn_protos` | `lyk0UDADPAc` |
 | `RSA_pkey_ctx_ctrl` | `mKlCMgWMU84` |
 | `SSL_set_info_callback` | `mOQe5RQATT4` |
-| `ASN1_get_object` | `mXrusLhI3CI` |
 | `SSL_provide_quic_data` | `mhAgol4ETgY` |
 | `tls_server` | `nCOh70mg3K0` |
 | `d2i_PUBKEY` | `o3Q8yQAMT-k` |
