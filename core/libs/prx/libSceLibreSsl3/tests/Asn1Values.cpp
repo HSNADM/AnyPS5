@@ -96,7 +96,12 @@ void APS5_VABI Release_nid_no_patch(void* pointer) {
     std::free(bytes - 16);
 }
 
-void* APS5_VABI UnexpectedCalloc_nid_no_patch(std::size_t, std::size_t) { throw std::runtime_error("unexpected calloc"); }
+void* APS5_VABI AllocateZeroed_nid_no_patch(std::size_t count, std::size_t size) {
+    Check(count == 1);
+    void* result = Allocate_nid_no_patch(size);
+    if (result) std::memset(result, 0, size);
+    return result;
+}
 void* APS5_VABI UnexpectedReallocate_nid_no_patch(void*, std::size_t) { throw std::runtime_error("unexpected realloc"); }
 void* APS5_VABI UnexpectedAlign_nid_no_patch(std::size_t, std::size_t) { throw std::runtime_error("unexpected aligned allocation"); }
 void* APS5_VABI UnexpectedRealign_nid_no_patch(void*, std::size_t, std::size_t) { throw std::runtime_error("unexpected aligned reallocation"); }
@@ -104,7 +109,7 @@ int APS5_VABI UnexpectedPosixAlign_nid_no_patch(void**, std::size_t, std::size_t
 
 void Integers() {
     std::array<void*, 10> api{
-        reinterpret_cast<void*>(Allocate_nid_no_patch), reinterpret_cast<void*>(Release_nid_no_patch), reinterpret_cast<void*>(UnexpectedCalloc_nid_no_patch),
+        reinterpret_cast<void*>(Allocate_nid_no_patch), reinterpret_cast<void*>(Release_nid_no_patch), reinterpret_cast<void*>(AllocateZeroed_nid_no_patch),
         reinterpret_cast<void*>(UnexpectedReallocate_nid_no_patch), reinterpret_cast<void*>(UnexpectedAlign_nid_no_patch), reinterpret_cast<void*>(UnexpectedRealign_nid_no_patch),
         reinterpret_cast<void*>(UnexpectedPosixAlign_nid_no_patch)};
     ApplicationHeapRegister_nid_no_patch(api.data());
@@ -152,10 +157,61 @@ void Integers() {
     for (auto byte : guarded.right) Check(byte == 0x3C);
 }
 
+void Strings() {
+    Asn1String value{0, 4, nullptr, 0x40};
+    unsigned char binary[]{0x41, 0, 0xFF};
+    Check(ASN1_STRING_set_nid_postfix(&value, binary, 3) == 1);
+    Check(value.type == 4 && value.flags == 0x40 && value.length == 3 && value.data != binary);
+    Check(std::memcmp(value.data, binary, 3) == 0 && value.data[3] == 0);
+    const auto beforeNull = value;
+    Check(ASN1_STRING_set_nid_postfix(&value, nullptr, -1) == 0 && std::memcmp(&value, &beforeNull, sizeof(value)) == 0);
+    Throws<std::invalid_argument>([&] { ASN1_STRING_set_nid_postfix(&value, value.data, 2); });
+    Check(std::memcmp(&value, &beforeNull, sizeof(value)) == 0 && std::memcmp(value.data, binary, 3) == 0);
+    clearOnFree = value.data;
+    clearLength = value.length;
+    Check(ASN1_STRING_set_nid_postfix(&value, "three\0hidden", -1) == 1 && !clearOnFree);
+    Check(value.length == 5 && std::strcmp(reinterpret_cast<const char*>(value.data), "three") == 0);
+    clearOnFree = value.data;
+    clearLength = value.length;
+    Check(ASN1_STRING_set_nid_postfix(&value, nullptr, -2) == 0 && !clearOnFree && allocations.empty());
+    Check(value.length == 0 && value.type == 4 && value.flags == 0x40 && !value.data);
+    Check(ASN1_STRING_set_nid_postfix(&value, nullptr, 5) == 1);
+    Check(value.length == 5 && std::all_of(value.data, value.data + 6, [](unsigned char byte) { return byte == 0; }));
+    clearOnFree = value.data;
+    clearLength = value.length;
+    Check(ASN1_STRING_set_nid_postfix(&value, value.data, std::numeric_limits<int>::max()) == 0 && !clearOnFree && allocations.empty());
+    Check(value.length == 0 && !value.data && value.type == 4 && value.flags == 0x40);
+    unsigned char borrowed[]{5, 6, 7, 8};
+    value = {4, 19, borrowed, 0x50};
+    Check(ASN1_STRING_set_nid_postfix(&value, borrowed + 1, 3) == 1);
+    Check(value.length == 3 && value.type == 19 && value.flags == 0x40 && value.data[3] == 0);
+    Check(std::memcmp(value.data, borrowed + 1, 3) == 0 && std::equal(std::begin(borrowed), std::end(borrowed), std::array<unsigned char, 4>{5, 6, 7, 8}.begin()));
+    clearOnFree = value.data;
+    clearLength = value.length;
+    ERR_clear_error_nid_postfix();
+    failAllocation = true;
+    Check(ASN1_STRING_set_nid_postfix(&value, binary, 3) == 0 && !clearOnFree && allocations.empty());
+    Check(value.length == 0 && !value.data && value.type == 19 && value.flags == 0x40);
+    Check(ERR_get_error_nid_postfix() == 0x0DFFF041 && ERR_get_error_nid_postfix() == 0);
+    failAllocation = false;
+    Check(ASN1_STRING_set_nid_postfix(&value, nullptr, 0) == 1 && value.data && value.length == 0 && value.data[0] == 0);
+    value.length = -1;
+    const auto beforeNegative = value;
+    Throws<std::invalid_argument>([&] { ASN1_STRING_set_nid_postfix(&value, binary, 3); });
+    Check(std::memcmp(&value, &beforeNegative, sizeof(value)) == 0);
+    free_nid_postfix(value.data);
+    Check(allocations.empty());
+    Check(ASN1_STRING_set_nid_postfix(nullptr, nullptr, -1) == 0);
+    Throws<std::invalid_argument>([] { ASN1_STRING_set_nid_postfix(nullptr, nullptr, 0); });
+    Throws<std::invalid_argument>([] { ASN1_STRING_set_nid_postfix(nullptr, "", -1); });
+    Check(ERR_get_error_nid_postfix() == 0);
+}
+
 } // namespace
 
 int main() {
     Comparisons();
     Integers();
-    std::puts("ASN.1 comparison, signed integer, ownership, clearing and allocation-failure checks passed");
+    Strings();
+    std::puts("ASN.1 comparison, signed integer, string replacement, ownership and allocation-failure checks passed");
 }

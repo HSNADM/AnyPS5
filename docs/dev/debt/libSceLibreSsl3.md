@@ -20,9 +20,11 @@
 
 - [ASN1_OCTET_STRING_cmp and ASN1_INTEGER_set](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Values.cpp) - console behavior, allocator call sequences and cross-module ownership remain unverified. Follow [LibreSSL 4.0.0 a_string.c, a_octet.c and a_int.c](https://github.com/libressl/openbsd/tree/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/asn1) with the existing 24-byte `Asn1String` record. Comparison returns -1 for null operands, compares lengths before bytes and types, and ignores flags. Undefined signed subtraction, equal negative lengths and null nonempty buffers throw. Integer assignment takes the console's 64-bit `long`, clears and frees the old magnitude, resets the record and stores minimal big-endian unsigned magnitude with type 2 or 258. It uses an eight-byte guest allocation instead of the source's CBB builder; failure returns 0 with the cleared record and requested sign. Null integers and negative old lengths with non-null data throw without mutation. Closes when: checked against console allocation and lifetime behavior.
 
+- [ASN1_STRING_set](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Values.cpp) - console ABI, allocation and error-queue interoperability remain unverified. Follows the same LibreSSL 4.0.0 `a_string.c`: length -1 uses `strlen`, with null input returning 0 before touching the destination; other invalid lengths clear the old value before returning 0. Owned old bytes are wiped and freed, while NDEF data is borrowed. The NDEF flag is cleared, other flags and type survive, and replacement data receives a zero terminator even for null input. Allocation failure leaves a cleared value and queues ASN.1 malloc failure through the existing parent error helper. Null destinations, negative owned lengths and detected overlap with released source bytes throw where the source faults or accesses freed storage. Closes when: measured on the console, including errors and caller-owned data.
+
 ### Additional callable export inventory
 
-- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 174 pending callable exports: 164 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
+- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 173 pending callable exports: 163 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
 
 | Name | NID |
 | --- | --- |
@@ -144,7 +146,6 @@
 | `tls_write` | `fZJr2OF+KGw` |
 | `X509_ALGOR_get0` | `fdvZNUHm-dE` |
 | `BIO_set_shutdown` | `fq1vAGKJNrI` |
-| `ASN1_STRING_set` | `gavhu7SX2FI` |
 | `PEM_read_bio_PUBKEY` | `gn7mRF71J4k` |
 | `EVP_PKEY_assign` | `gp5dGS14-pI` |
 | `OPENSSL_init_ssl` | `hGiyDq-l4AE` |
