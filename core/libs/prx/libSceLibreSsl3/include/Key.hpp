@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 
+struct LibreSsl3Bignum;
+
 struct LibreSsl3EvpPkey {
     std::int32_t type;
     std::int32_t references;
