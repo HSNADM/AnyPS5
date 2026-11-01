@@ -240,10 +240,6 @@ int APS5_VABI EVP_chacha20_nid_postfix() {
     NotImplemented_nid_no_patch(__func__);
 }
 
-int APS5_VABI ASN1_INTEGER_set_nid_postfix() {
-    NotImplemented_nid_no_patch(__func__);
-}
-
 int APS5_VABI RSA_set0_factors_nid_postfix() {
     NotImplemented_nid_no_patch(__func__);
 }
@@ -350,10 +346,6 @@ int APS5_VABI RSAPublicKey_dup_nid_postfix() {
 }
 
 int APS5_VABI AES_unwrap_key_nid_postfix() {
-    NotImplemented_nid_no_patch(__func__);
-}
-
-int APS5_VABI ASN1_OCTET_STRING_cmp_nid_postfix() {
     NotImplemented_nid_no_patch(__func__);
 }
 
@@ -504,10 +496,6 @@ int APS5_VABI SSL_CTX_set_keylog_callback_nid_postfix() {
 }
 
 int APS5_VABI X509_ALGOR_get0_nid_postfix() {
-    NotImplemented_nid_no_patch(__func__);
-}
-
-int APS5_VABI ASN1_STRING_set_nid_postfix() {
     NotImplemented_nid_no_patch(__func__);
 }
 

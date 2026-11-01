@@ -20,9 +20,13 @@
 
 - [BIO state accessors and method configuration](../../../core/libs/prx/libSceLibreSsl3/src/Bio.cpp) - console layouts, allocator behavior and cross-module interoperability remain unverified. The 112-byte BIO and 80-byte BIO_METHOD records follow [LibreSSL 4.0.0 bio_local.h, bio_lib.c and bio_meth.c](https://github.com/libressl/openbsd/tree/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/bio). State accessors preserve unrequested fields. Method setters store guest-ABI callbacks without invoking them; `BIO_meth_new` zeroes a guest-heap allocation and borrows the name, while `BIO_meth_free` frees only the method. Null objects throw where LibreSSL dereferences them; freeing null is accepted. The forwarded parent BIO functions use a different layout and are not interchangeable with these objects. No BIO construction, dispatch or title unblock is established by these accessors. Closes when: measured against console-created BIOs and their callbacks and allocator.
 
+- [ASN1_OCTET_STRING_cmp and ASN1_INTEGER_set](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Values.cpp) - console behavior, allocator call sequences and cross-module ownership remain unverified. Follow [LibreSSL 4.0.0 a_string.c, a_octet.c and a_int.c](https://github.com/libressl/openbsd/tree/ce488b78e0bd994780569df718596b9776ff681a/src/lib/libcrypto/asn1) with the existing 24-byte `Asn1String` record. Comparison returns -1 for null operands, compares lengths before bytes and types, and ignores flags. Undefined signed subtraction, equal negative lengths and null nonempty buffers throw. Integer assignment takes the console's 64-bit `long`, clears and frees the old magnitude, resets the record and stores minimal big-endian unsigned magnitude with type 2 or 258. It uses an eight-byte guest allocation instead of the source's CBB builder; failure returns 0 with the cleared record and requested sign. Null integers and negative old lengths with non-null data throw without mutation. Closes when: checked against console allocation and lifetime behavior.
+
+- [ASN1_STRING_set](../../../core/libs/prx/libSceLibreSsl3/src/Asn1Values.cpp) - console ABI, allocation and error-queue interoperability remain unverified. Follows the same LibreSSL 4.0.0 `a_string.c`: length -1 uses `strlen`, with null input returning 0 before touching the destination; other invalid lengths clear the old value before returning 0. Owned old bytes are wiped and freed, while NDEF data is borrowed. The NDEF flag is cleared, other flags and type survive, and replacement data receives a zero terminator even for null input. Allocation failure leaves a cleared value and queues ASN.1 malloc failure through the existing parent error helper. Null destinations, negative owned lengths and detected overlap with released source bytes throw where the source faults or accesses freed storage. Closes when: measured on the console, including errors and caller-owned data.
+
 ### Additional callable export inventory
 
-- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 162 pending callable exports: 152 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
+- [Additional exports](../../../core/libs/prx/libSceLibreSsl3/AdditionalExports.cpp) declare 159 pending callable exports: 149 named and 10 known only by NID. Every remaining entry throws. Parameterless `int` declarations are unknown-signature placeholders, not verified ABI contracts. Names/NIDs match the 13.60 export table. No title unblock is claimed.
 
 | Name | NID |
 | --- | --- |
@@ -39,7 +43,6 @@
 | `unknown` | `3KZ-L4y1gak` |
 | `EVP_chacha20_poly1305` | `3m4CmAyOXwQ` |
 | `EVP_chacha20` | `3tGgkjBQ82A` |
-| `ASN1_INTEGER_set` | `3v2Omd4sqcU` |
 | `RSA_set0_factors` | `3wlK0tLONvk` |
 | `X509_set_pubkey` | `409ieWBMPUk` |
 | `tls_accept_socket` | `4Q3bvOy4LY8` |
@@ -80,7 +83,6 @@
 | `EVP_PKEY_CTX_new_id` | `J5ZLHxWkT6k` |
 | `RSAPublicKey_dup` | `JSqFTYGaWhU` |
 | `AES_unwrap_key` | `JvoQz7GYOMo` |
-| `ASN1_OCTET_STRING_cmp` | `Jzebx477Q3M` |
 | `SSL_CTX_add1_chain_cert` | `L897DuAuXKk` |
 | `X509_print` | `LA1MlgDx80o` |
 | `tls_config_free` | `LL8N+X6DA-4` |
@@ -135,7 +137,6 @@
 | `d2i_X509_CRL` | `fVos2kAqfMI` |
 | `tls_write` | `fZJr2OF+KGw` |
 | `X509_ALGOR_get0` | `fdvZNUHm-dE` |
-| `ASN1_STRING_set` | `gavhu7SX2FI` |
 | `PEM_read_bio_PUBKEY` | `gn7mRF71J4k` |
 | `EVP_PKEY_assign` | `gp5dGS14-pI` |
 | `OPENSSL_init_ssl` | `hGiyDq-l4AE` |
