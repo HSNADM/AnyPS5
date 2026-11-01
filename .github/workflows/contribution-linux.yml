@@ -12,10 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: freetype
-            source: 689971fa6c0fd7277e81455e97c323c18c62d698
-            target: libs guest_freetype_validation_tests
-            pattern: '^guest_freetype_validation$'
+          - name: key-unwrap
+            source: 7f8d105b2c0e115cba9c478b74d977a8b979de29
+            target: guest_libressl3_key_unwrap_tests
+            pattern: '^guest_libressl3_key_unwrap$'
     name: Linux ${{ matrix.name }}
     steps:
       - uses: actions/checkout@v7
@@ -25,8 +25,8 @@ jobs:
           persist-credentials: false
       - name: Install build prerequisites
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gcc-14 g++-14 ninja-build libvulkan1 mesa-vulkan-drivers libpipewire-0.3-dev libpulse-dev libasound2-dev libx11-dev libxext-dev libxrandr-dev libwayland-dev libxkbcommon-dev libegl-dev libdecor-0-dev
+          sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+          sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends gcc-14 g++-14 ninja-build libvulkan1 mesa-vulkan-drivers libpipewire-0.3-dev libpulse-dev libasound2-dev libx11-dev libxext-dev libxrandr-dev libwayland-dev libxkbcommon-dev libegl-dev libdecor-0-dev
       - name: Record source and toolchain
         run: |
           git rev-parse HEAD | tee source.log
