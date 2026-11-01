@@ -12,10 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: key-unwrap
-            source: 7f8d105b2c0e115cba9c478b74d977a8b979de29
-            target: guest_libressl3_key_unwrap_tests
-            pattern: '^guest_libressl3_key_unwrap$'
+          - name: rsa-getters
+            source: 2c52c696c550b24df0882fc5ad170aeb76de0339
+            target: guest_libressl3_rsa_getters_tests
+            pattern: '^guest_libressl3_rsa_getters$'
     name: Linux ${{ matrix.name }}
     steps:
       - uses: actions/checkout@v7
