@@ -12,10 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: rsa-getters
-            source: 2c52c696c550b24df0882fc5ad170aeb76de0339
-            target: guest_libressl3_rsa_getters_tests
-            pattern: '^guest_libressl3_rsa_getters$'
+          - name: bio-accessors
+            source: 5519b472c918ddbc0179f41342329001981bfbb5
+            target: guest_libressl3_bio_tests guest_libressl3_pkey_getters_tests guest_crypto_memcmp_tests guest_libressl3_digest_tests guest_libressl3_digest_context_tests guest_libressl3_asn1_tests guest_libressl3_x509_verify_param_tests guest_libressl3_stack_tests guest_libressl3_cipher_tests guest_libressl3_key_reference_tests
+            pattern: '^(guest_libressl3|guest_crypto_memcmp)'
     name: Linux ${{ matrix.name }}
     steps:
       - uses: actions/checkout@v7
