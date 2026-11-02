@@ -31,7 +31,7 @@ int APS5_VABI ASN1_STRING_set_nid_postfix(Asn1String* value, const void* input, 
         const auto source = reinterpret_cast<std::uintptr_t>(input);
         const auto old = reinterpret_cast<std::uintptr_t>(value->data);
         const auto oldSize = static_cast<std::uint64_t>(value->length);
-        if (input && length > 0 && length < std::numeric_limits<int>::max() && (source == old || (source > old && source - old < oldSize) ||
+        if (input && length > 0 && length < std::numeric_limits<int>::max() && (source == old || (source > old && source - old <= oldSize) ||
             (source < old && old - source < static_cast<std::uint64_t>(length))))
             throw std::invalid_argument("ASN1_STRING_set: input aliases released storage");
         auto* bytes = static_cast<volatile unsigned char*>(value->data);
