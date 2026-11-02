@@ -13,8 +13,8 @@ jobs:
       matrix:
         include:
           - name: system-integration
-            source: c670a1e9df80704cc9830f27ee6d6f41633d1612
-            target: guest_libressl3_asn1_header_tests guest_libressl3_asn1_time_tests guest_libressl3_key_unwrap_tests guest_libressl3_bio_tests guest_libressl3_asn1_values_tests guest_libressl3_pkey_getters_tests guest_crypto_memcmp_tests guest_libressl3_digest_tests guest_libressl3_digest_context_tests guest_libressl3_asn1_tests guest_libressl3_x509_verify_param_tests guest_libressl3_stack_tests guest_libressl3_cipher_tests guest_libressl3_key_reference_tests
+            source: af7a2e467ac2d69202692de5615c041a86013100
+            target: guest_libressl3_tls_protocols_tests guest_libressl3_asn1_header_tests guest_libressl3_asn1_time_tests guest_libressl3_key_unwrap_tests guest_libressl3_bio_tests guest_libressl3_asn1_values_tests guest_libressl3_pkey_getters_tests guest_crypto_memcmp_tests guest_libressl3_digest_tests guest_libressl3_digest_context_tests guest_libressl3_asn1_tests guest_libressl3_x509_verify_param_tests guest_libressl3_stack_tests guest_libressl3_cipher_tests guest_libressl3_key_reference_tests
             pattern: '^(guest_libressl3|guest_crypto_memcmp)'
     name: Linux ${{ matrix.name }}
     steps:
@@ -49,3 +49,4 @@ jobs:
             build.log
             ctest.log
             build/focused.xml
+
