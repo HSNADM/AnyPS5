@@ -167,6 +167,8 @@ void Strings() {
     Check(ASN1_STRING_set_nid_postfix(&value, nullptr, -1) == 0 && std::memcmp(&value, &beforeNull, sizeof(value)) == 0);
     Throws<std::invalid_argument>([&] { ASN1_STRING_set_nid_postfix(&value, value.data, 2); });
     Check(std::memcmp(&value, &beforeNull, sizeof(value)) == 0 && std::memcmp(value.data, binary, 3) == 0);
+    Throws<std::invalid_argument>([&] { ASN1_STRING_set_nid_postfix(&value, value.data + value.length, 1); });
+    Check(std::memcmp(&value, &beforeNull, sizeof(value)) == 0 && value.data[value.length] == 0);
     clearOnFree = value.data;
     clearLength = value.length;
     Check(ASN1_STRING_set_nid_postfix(&value, "three\0hidden", -1) == 1 && !clearOnFree);
@@ -195,6 +197,9 @@ void Strings() {
     Check(ERR_get_error_nid_postfix() == 0x0DFFF041 && ERR_get_error_nid_postfix() == 0);
     failAllocation = false;
     Check(ASN1_STRING_set_nid_postfix(&value, nullptr, 0) == 1 && value.data && value.length == 0 && value.data[0] == 0);
+    const auto beforeEmpty = value;
+    Throws<std::invalid_argument>([&] { ASN1_STRING_set_nid_postfix(&value, value.data, 1); });
+    Check(std::memcmp(&value, &beforeEmpty, sizeof(value)) == 0 && value.data[0] == 0);
     value.length = -1;
     const auto beforeNegative = value;
     Throws<std::invalid_argument>([&] { ASN1_STRING_set_nid_postfix(&value, binary, 3); });
